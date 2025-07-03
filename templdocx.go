@@ -42,7 +42,7 @@ const (
 )
 
 type Context struct {
-	Processor  *docProcessor
+	Processor  *DocProcessor
 	ObjectType DocObject
 	Parent     *Context
 	Index      int
@@ -97,7 +97,7 @@ type ControlTypeDrawing struct {
 	params   []string
 }
 
-type docProcessor struct {
+type DocProcessor struct {
 	doc             *docx.Docx
 	values          any
 	funcMap         template.FuncMap
@@ -105,8 +105,8 @@ type docProcessor struct {
 	controlProvider CustomControlProvider
 }
 
-func NewDocParser(doc *docx.Docx, values any, options ...any) *docProcessor {
-	dp := &docProcessor{
+func NewDocParser(doc *docx.Docx, values any, options ...any) *DocProcessor {
+	dp := &DocProcessor{
 		doc:    doc,
 		values: values,
 	}
@@ -122,12 +122,12 @@ func NewDocParser(doc *docx.Docx, values any, options ...any) *docProcessor {
 	return dp
 }
 
-func (dp *docProcessor) Process() error {
+func (dp *DocProcessor) Process() error {
 	_, err := dp.context.processItems(dp.doc.Document.Body.Items)
 	return err
 }
 
-func (dp *docProcessor) pushContext(tip DocObject, item any) *Context {
+func (dp *DocProcessor) pushContext(tip DocObject, item any) *Context {
 	ctx := &Context{
 		Processor:  dp,
 		ObjectType: tip,
@@ -147,7 +147,7 @@ func (dp *docProcessor) pushContext(tip DocObject, item any) *Context {
 	return ctx
 }
 
-func (dp *docProcessor) popContext() *Context {
+func (dp *DocProcessor) popContext() *Context {
 	ctx := dp.context
 	if ctx != nil {
 		dp.context = ctx.Parent
@@ -362,7 +362,11 @@ func (c *Context) processParagraph(paragraph *docx.Paragraph) (any, error) {
 }
 
 func (c *Context) processText(text *docx.Text) error {
-	templ, err := template.New("text").Parse(text.Text)
+	templ := template.New("text")
+	if c.Processor.funcMap != nil {
+		templ.Funcs(c.Processor.funcMap)
+	}
+	templ, err := templ.Parse(text.Text)
 	if err != nil {
 		return Error{
 			TemplateError: err,
@@ -371,6 +375,7 @@ func (c *Context) processText(text *docx.Text) error {
 			Position:      c.describePosition(),
 		}
 	}
+
 	result := strings.Builder{}
 	err = templ.Execute(&result, c.Vars)
 	if err != nil {
