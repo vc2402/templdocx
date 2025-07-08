@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/fumiama/go-docx"
+	"io"
 	"os"
 	"reflect"
 	"strconv"
@@ -895,6 +896,6 @@ func FSDrawableProvider(ctx *Context, params []string) ([]byte, error) {
 	}
 	defer file.Close()
 	buf := bytes.Buffer{}
-	_, err = file.WriteTo(&buf)
+	_, err = io.Copy(&buf, file)
 	return buf.Bytes(), nil
 }
