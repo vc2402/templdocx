@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
-	"github.com/fumiama/go-docx"
 	"io"
 	"os"
 	"reflect"
@@ -12,6 +11,8 @@ import (
 	"strings"
 	"text/template"
 	"unicode"
+
+	"github.com/fumiama/go-docx"
 )
 
 var (
@@ -703,9 +704,9 @@ func (c *Context) describePosition() string {
 	return ret.String()
 }
 
-func (c *Context) parseVar(name string, params ...string) (any, error) {
+func (c *Context) ParseVar(name string, params ...string) (any, error) {
 	if strings.HasPrefix(name, ".") {
-		return c.getVar(name[1:])
+		return c.GetVar(name[1:])
 	}
 	if c.Processor.funcMap == nil {
 		return nil, fmt.Errorf("when parsing '%s': FuncMap is null", name)
@@ -713,7 +714,7 @@ func (c *Context) parseVar(name string, params ...string) (any, error) {
 	return c.executeFunc(name, params...)
 }
 
-func (c *Context) getVar(name string) (any, error) {
+func (c *Context) GetVar(name string) (any, error) {
 	// todo process dots
 	if asMap, ok := c.Vars.(map[string]any); ok {
 		val, ok := asMap[name]
@@ -785,7 +786,7 @@ func (c *controlTypeLoop) Execute(ctx *Context) ([]any, error) {
 	if !ok {
 		return nil, errors.New("invalid control type")
 	}
-	val, err := ctx.parseVar(c.by)
+	val, err := ctx.ParseVar(c.by)
 	if err != nil {
 		return nil, err
 	}
@@ -882,7 +883,7 @@ func FSDrawableProvider(ctx *Context, params []string) ([]byte, error) {
 	if len(params) == 0 {
 		return nil, errors.New("image file name not given")
 	}
-	paramValue, err := ctx.parseVar(params[0])
+	paramValue, err := ctx.ParseVar(params[0])
 	if err != nil {
 		return nil, err
 	}
