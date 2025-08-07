@@ -251,7 +251,7 @@ func (c *Context) processItem(it any) (any, error) {
 		err = c.processTable(v)
 	case *docx.Text:
 		command, err = c.isControl(v)
-		if command == nil && err == nil {
+		if command == nil && err == nil && !c.skipExecution {
 			err = c.processText(v)
 		}
 	case *docx.Run:
