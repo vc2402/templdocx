@@ -701,6 +701,12 @@ func (c *Context) describePosition() string {
 			ret.WriteString("paragraph ")
 			ret.WriteString(strconv.Itoa(c.counts[DOParagraph] + 1))
 			ret.WriteString(": ")
+		case DOControl:
+			ret.WriteString("control ")
+			if cc, ok := c.Item.(*ControlContext); ok {
+				ret.WriteString(cc.ControlName)
+				ret.WriteString(": ")
+			}
 		}
 	}
 	walk(c)
