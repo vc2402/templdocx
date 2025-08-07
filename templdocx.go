@@ -299,6 +299,9 @@ func (c *Context) processTable(table *docx.Table) error {
 						row.TableCells = append(row.TableCells[0:cellIdx], row.TableCells[cellIdx+1:len(row.TableCells)]...)
 						cellIdx--
 						//TODO add context and process command
+						c.Processor.popContext() // cell
+						c.Processor.popContext() // row
+						return errors.New("table one-row command not implemented yet")
 					} else {
 						cc := &ControlContext{
 							Items:         nil,
@@ -315,7 +318,7 @@ func (c *Context) processTable(table *docx.Table) error {
 							c.Processor.popContext() // command
 							c.Processor.popContext() // cell
 							c.Processor.popContext() // row
-							return err
+							return fmt.Errorf("while looking for control end: %w", err)
 						}
 						restRows := table.TableRows[cc.LastItemIdx+1:]
 						table.TableRows = table.TableRows[0:rowIdx]
