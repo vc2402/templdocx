@@ -733,10 +733,16 @@ func (c *Context) GetVar(name string) (any, error) {
 		return val, nil
 	}
 	rv := reflect.ValueOf(c.Vars)
-	if rv.Kind() != reflect.Struct {
+	switch rv.Kind() {
+	case reflect.Struct:
 		if rv.FieldByName(name).IsValid() {
 			return rv.FieldByName(name).Interface(), nil
 		}
+	case reflect.Map:
+		if rv.MapIndex(reflect.ValueOf(name)).IsValid() {
+			return rv.MapIndex(reflect.ValueOf(name)), nil
+		}
+
 	}
 	return nil, fmt.Errorf("%w: '%s'", ErrVarNotFound, name)
 }
