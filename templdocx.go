@@ -280,9 +280,9 @@ func (c *Context) processItem(it any) (any, error) {
 func (c *Context) processTable(table *docx.Table) error {
 	c = c.Processor.pushContext(DOTable, table)
 	defer c.Processor.popContext()
-	rows := table.TableRows
-	for rowIdx := 0; rowIdx < len(rows); rowIdx++ {
-		row := rows[rowIdx]
+	//rows := table.TableRows
+	for rowIdx := 0; rowIdx < len(table.TableRows); rowIdx++ {
+		row := table.TableRows[rowIdx]
 		c = c.Processor.pushContext(DOTableRow, row)
 		for cellIdx := 0; cellIdx < len(row.TableCells); cellIdx++ {
 			cell := row.TableCells[cellIdx]
@@ -395,7 +395,7 @@ func (c *Context) processText(text *docx.Text) error {
 	return nil
 }
 
-// SkipTillControlEnd reads dic till the end of current command
+// SkipTillControlEnd reads doc till the end of the current command
 func (c *Context) SkipTillControlEnd() error {
 	if c.ObjectType != DOControl {
 		return ErrNotInControlContext
@@ -429,7 +429,7 @@ func (c *Context) skipTillControlEndTable(cc *ControlContext, table *docx.Table)
 		}
 		row := cloned.(*docx.WTableRow)
 		if len(row.TableCells) > 0 {
-			// checking only first cell
+			// checking only the first cell
 			cell := row.TableCells[0]
 			command, err := c.processItem(cell)
 			if err != nil {
