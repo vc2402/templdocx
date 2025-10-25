@@ -844,6 +844,7 @@ func (c *controlTypeLoop) Execute(ctx *Context) ([]any, error) {
 				return nil, err
 			}
 		}
+	case nil:
 	default:
 		return nil, fmt.Errorf("unsupported array type: %T", val)
 	}
